@@ -1,41 +1,63 @@
-package com.journaldev.socket;
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <arpa/inet.h> 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+int main(int argc, char *argv[])
+{
+    int sockfd = 0, n = 0;
+    char recvBuff[1024];
+    struct sockaddr_in serv_addr; 
 
-/**
- * This class implements java socket client
- * @author pankaj
- *
- */
-public class SocketClientExample {
+    if(argc != 2)
+    {
+        printf("\n Usage: %s <ip of server> \n",argv[0]);
+        return 1;
+    } 
 
-    public static void main(String[] args) throws UnknownHostException, IOException, ClassNotFoundException, InterruptedException{
-        //get the localhost IP address, if server is running on some other IP, you need to use that
-        InetAddress host = InetAddress.getLocalHost();
-        Socket socket = null;
-        ObjectOutputStream oos = null;
-        ObjectInputStream ois = null;
-        for(int i=0; i<5;i++){
-            //establish socket connection to server
-            socket = new Socket(host.getHostName(), 9876);
-            //write to socket using ObjectOutputStream
-            oos = new ObjectOutputStream(socket.getOutputStream());
-            System.out.println("Sending request to Socket Server");
-            if(i==4)oos.writeObject("exit");
-            else oos.writeObject(""+i);
-            //read the server response message
-            ois = new ObjectInputStream(socket.getInputStream());
-            String message = (String) ois.readObject();
-            System.out.println("Hello: " + hello);
-            //close resources
-            ois.close();
-            oos.close();
-            Thread.sleep(100);
+    memset(recvBuff, '0',sizeof(recvBuff));
+    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        printf("\n Error : Could not create socket \n");
+        return 1;
+    } 
+
+    memset(&serv_addr, '0', sizeof(serv_addr)); 
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(5000); 
+
+    if(inet_pton(AF_INET, argv[1], &serv_addr.sin_addr)<=0)
+    {
+        printf("\n inet_pton error occured\n");
+        return 1;
+    } 
+
+    if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    {
+       printf("\n Error : Connect Failed \n");
+       return 1;
+    } 
+
+    while ( (n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
+    {
+        recvBuff[n] = 0;
+        if(fputs(recvBuff, stdout) == EOF)
+        {
+            printf("\n Error : Fputs error\n");
         }
-    }
+    } 
+
+    if(n < 0)
+    {
+        printf("\n Read error \n");
+    } 
+
+    return 0;
 }
