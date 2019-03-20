@@ -19,7 +19,7 @@ int main(int argc , char const *argv[])
      //create socket
      if ((sockfd = socket(AF_INET, SOCK_STREAM,0)) < 0)
      {
-          printf ("could create socket");
+          printf ("could not create socket");
 	  return -1;
      }
      memset(&serv_addr, '0', sizeof(serv_addr));
