@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include<winsock.h>
-#include<conio.h>
+#include <winsock2.h>
+#include <conio.h>
  
 #define MAXRCVLEN 500
 #define PORTNUM 2343
