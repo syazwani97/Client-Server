@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <curses.h>
+
  
 #define MAXRCVLEN 500
 #define PORTNUM 2343
