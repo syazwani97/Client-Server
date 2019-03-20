@@ -1,59 +1,47 @@
-#include<stdio.h>
-#include<netinet/in.h>
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<netdb.h>
-#include<string.h>
-#include<stdlib.h>
-#define MAX 80
-#define PORT 43454
-#define SA struct sockaddr
-void func(int sockfd)
+// Write CPP code here 
+#include <netdb.h> 
+#include <stdio.h> 
+#include <unistd.h>
+#include <stdlib.h> 
+#include <string.h> 
+#include <sys/socket.h> 
+#include <arpa/inet.h>
+#define PORT 5000 
+
+int main(int argc , char const *argv[])
 {
-char buff[MAX];
-int n;
-for(;;)
-{
-bzero(buff,sizeof(buff));
-printf("Enter the string : ");
-n=0;
-while((buff[n++]=getchar())!='\n');
-write(sockfd,buff,sizeof(buff));
-bzero(buff,sizeof(buff));
-read(sockfd,buff,sizeof(buff));
-printf("From Server : %s",buff);
-if((strncmp(buff,"exit",4))==0)
-{
-printf("Client Exit...\n");
-break;
-}
-}
+     int sockfd = 0, vread;
+     char *annyeong = "annyeong from client";
+     char buff[1000] = {0};
+     struct sockaddr_in adrress;
+     struct sockaddr_in servaddr;
+     
+     //create socket
+     if ((sockfd = socket(AF_INET, SOCK_STREAM,0)) < 0)
+     {
+          printf ("could not create socket");
+	  return -1;
+     }
+     memset(&servaddr, '0', sizeof(servaddr));
+     
+     servaddr.sin_family = AF_INET;
+     servaddr.sin_port = htons(5000);
+     
+     if (inet_pton(AF_INET, "192.168.216.128", &servaddr.sin_addr) <= 0)
+     {
+          //print the error message
+          printf("\n it's error \n");
+          return -1;
+     }
+	
+	//Accept and incoming connection
+	send(sockfd, annyeong, strlen(annyeong) , 0);
+	  printf("annyeong message sent");
+	  vread = read(sockfd, buff , 1000);
+	  printf("%s\n" , buff);
+	  
+	
+	return 0;
 }
 
-int main()
-{
-int sockfd,connfd;
-struct sockaddr_in servaddr,cli;
-sockfd=socket(AF_INET,SOCK_STREAM,0);
-if(sockfd==-1)
-{
-printf("socket creation failed...\n");
-exit(0);
-}
-else
-printf("Socket successfully created..\n");
-bzero(&servaddr,sizeof(servaddr));
-servaddr.sin_family=AF_INET;
-servaddr.sin_addr.s_addr=inet_addr("127.0.0.1");
-servaddr.sin_port=htons(PORT);
-if(connect(sockfd,(SA *)&servaddr,sizeof(servaddr))!=0)
-{
-printf("connection with the server failed...\n");
-exit(0);
-}
-else
-printf("connected to the server..\n");
-func(sockfd);
-close(sockfd);
-}
 
